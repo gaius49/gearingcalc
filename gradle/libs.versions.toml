@@ -2,9 +2,11 @@
 # https://docs.gradle.org/current/userguide/platforms.html#sub::toml-dependencies-format
 
 [versions]
+assertj = "4.0.0-M1"
 guava = "33.4.6-jre"
 junit-jupiter = "5.12.1"
 
 [libraries]
+assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
