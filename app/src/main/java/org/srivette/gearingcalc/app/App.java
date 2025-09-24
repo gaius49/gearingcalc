@@ -20,11 +20,15 @@ public class App {
     public static void main(String[] args) {
         App app = new App();
         System.out.println(app.getGreeting());
-        List<GearSpeedDataPoint> results = app.getResults();
+
+        Drivetrain drivetrain = app.getDrivetrain();
+        List<Integer> rpmsOfInterest = Arrays.asList(500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500);
+        List<GearSpeedDataPoint> results = app.getSpeedsForRPMs(drivetrain, rpmsOfInterest);
+
         app.displayResults(results);
     }
 
-    public List<GearSpeedDataPoint> getResults() {
+    public Drivetrain getDrivetrain() {
         DiffRatio diffRatio = new DiffRatio(3.45);
         TireSize tireSize = TireSize.fromSpecs(205, 70, 15);
         List<GearRatio> gearSet = Arrays.asList(
@@ -33,19 +37,20 @@ public class App {
                 new GearRatio(3, 1.28),
                 new GearRatio(4, 1.0),
                 new GearRatio(5, 0.81));
+        Drivetrain drivetrain = new Drivetrain(gearSet, diffRatio, tireSize);
 
-        List<Integer> rpmsOfInterest = Arrays.asList(500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500);
+        return drivetrain;
+    }
 
-        List<GearSpeedDataPoint> results = new ArrayList<>();
-
-        for (GearRatio gearRatio : gearSet) {
-            for (Integer rpm : rpmsOfInterest) {
-                GearSpeedDataPoint gearSpeedDataPoint = new GearSpeedDataPoint(gearRatio, diffRatio, tireSize, rpm);
-                results.add(gearSpeedDataPoint);
+    public List<GearSpeedDataPoint> getSpeedsForRPMs(Drivetrain drivetrain, List<Integer> rpmsOfInterest) {
+        List<GearSpeedDataPoint> gearSpeedDataPoints = new ArrayList<>();
+        for (GearRatio gearRatio : getDrivetrain().getGearRatios()) {
+            for (int rpm : rpmsOfInterest) {
+                gearSpeedDataPoints.add(drivetrain.getGearSpeedDataPoint(gearRatio.gearNumber(), rpm));
             }
         }
 
-        return results;
+        return gearSpeedDataPoints;
     }
 
     public void displayResults(List<GearSpeedDataPoint> gearSpeedDataPoints) {
