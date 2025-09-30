@@ -8,6 +8,8 @@ import org.srivette.gearingcalc.records.GearRatio;
 import org.srivette.gearingcalc.records.GearSpeedDataPoint;
 import org.srivette.gearingcalc.records.TireSize;
 
+import javax.swing.JFrame;
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,21 +24,23 @@ public class App {
         System.out.println(app.getGreeting());
 
         Drivetrain drivetrain = app.getDrivetrain();
-        List<Integer> rpmsOfInterest = Arrays.asList(500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500);
+        List<Integer> rpmsOfInterest = Arrays.asList(0, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500);
         List<GearSpeedDataPoint> results = app.getSpeedsForRPMs(drivetrain, rpmsOfInterest);
 
-        app.displayResults(results);
+        app.printResultsToConsoleResults(results);
+        app.createAndShowGui(results.stream().filter(gearSpeedDataPoint -> gearSpeedDataPoint.gearRatio().gearNumber() == 1).toList());
     }
 
     public Drivetrain getDrivetrain() {
         DiffRatio diffRatio = new DiffRatio(3.45);
         TireSize tireSize = TireSize.fromSpecs(205, 70, 15);
         List<GearRatio> gearSet = Arrays.asList(
-                new GearRatio(1, 2.87),
-                new GearRatio(2, 1.89),
-                new GearRatio(3, 1.28),
-                new GearRatio(4, 1.0),
-                new GearRatio(5, 0.81));
+                new GearRatio(1, 2.87)
+//                new GearRatio(2, 1.89),
+//                new GearRatio(3, 1.28),
+//                new GearRatio(4, 1.0),
+//                new GearRatio(5, 0.81)
+        );
         Drivetrain drivetrain = new Drivetrain(gearSet, diffRatio, tireSize);
 
         return drivetrain;
@@ -53,7 +57,7 @@ public class App {
         return gearSpeedDataPoints;
     }
 
-    public void displayResults(List<GearSpeedDataPoint> gearSpeedDataPoints) {
+    public void printResultsToConsoleResults(List<GearSpeedDataPoint> gearSpeedDataPoints) {
         for (GearSpeedDataPoint gearSpeedDataPoint : gearSpeedDataPoints) {
             int gearNumber = gearSpeedDataPoint.gearRatio().gearNumber();
             int rpm = gearSpeedDataPoint.rpm();
@@ -61,5 +65,21 @@ public class App {
             String line = String.format("Gear %d \t\t RPM %d\t\t Speed(mph) %f", gearNumber, rpm, speedMph);
             System.out.println(line);
         }
+    }
+
+    private static void createAndShowGui(List<GearSpeedDataPoint> gearSpeedDataPointsList) {
+        List<Double> scores = new ArrayList<>();
+        List<GearSpeedDataPoint> firstGearData = gearSpeedDataPointsList.stream().filter(gearSpeedDataPoint -> gearSpeedDataPoint.gearRatio().gearNumber() == 1).toList();
+        for (GearSpeedDataPoint gearSpeedDataPoint : firstGearData) {
+            scores.add(gearSpeedDataPoint.computeSpeedMph());
+        }
+        GraphPanel mainPanel = new GraphPanel(gearSpeedDataPointsList);
+        mainPanel.setPreferredSize(new Dimension(800, 600));
+        JFrame frame = new JFrame("DrawGraph");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.getContentPane().add(mainPanel);
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
     }
 }
